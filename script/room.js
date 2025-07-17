@@ -1,4 +1,4 @@
-const socket = io("https://your-render-server.onrender.com"); // ←ここは後で置き換え
+const socket = io("https://boine.onrender.com/"); // ←ここは後で置き換え
 const videoGrid = document.getElementById("video-grid");
 const peerConnections = {};
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
