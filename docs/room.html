@@ -5,17 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>シコッター通話ルーム</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      justify-items: center;
+    }
+    video {
+      width: 100%;
+      max-height: 240px;
+      background: black;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ddd;
+    }
+  </style>
 </head>
 <body>
-  <h2>通話ルーム（最大4人）</h2>
-  <div id="video-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-    <!-- 各ユーザーのビデオ -->
+  <h2>シコッター通話ルーム（最大4人）</h2>
+
+  <div id="video-grid">
+    <!-- 各ユーザーのビデオが表示される -->
   </div>
 
   <div style="margin-top: 20px;">
-    <button onclick="toggleCamera()">カメラON/OFF</button>
-    <button onclick="toggleMic()">マイクON/OFF</button>
-    <button onclick="leaveRoom()">通話終了</button>
+    <button onclick="toggleCamera()">🎥 カメラ ON/OFF</button>
+    <button onclick="toggleMic()">🎤 マイク ON/OFF</button>
+    <button onclick="leaveRoom()">❌ 通話終了</button>
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
