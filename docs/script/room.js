@@ -1,4 +1,4 @@
-const socket = io("https://boine.onrender.com/"); // ←適宜書き換えてください
+const socket = io("https://boine.onrender.com/");
 const videoGrid = document.getElementById("video-grid");
 const peerConnections = {};
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
@@ -6,7 +6,6 @@ const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 let localStream;
 let myId;
 
-// カメラ・マイクの取得
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   .then(stream => {
     localStream = stream;
@@ -16,18 +15,22 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 
     socket.on("joined", (otherUsers) => {
       myId = socket.id;
+      console.log("✅ 他のユーザー:", otherUsers);
       for (const id of otherUsers) {
-        createPeerConnection(id, true); // 自分から発信
+        createPeerConnection(id, true);
       }
     });
 
     socket.on("new_user", id => {
-      createPeerConnection(id, true); // 新規ユーザーに発信
+      console.log("🆕 新規ユーザー:", id);
+      createPeerConnection(id, true);
     });
 
     socket.on("signal", async ({ from, data }) => {
+      console.log("📩 signal from", from, data);
+
       if (!peerConnections[from]) {
-        createPeerConnection(from, false); // 受信側として初期化
+        createPeerConnection(from, false);
       }
 
       const pc = peerConnections[from];
@@ -45,6 +48,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     });
 
     socket.on("user_left", id => {
+      console.log("🚪 ユーザー退出:", id);
       const video = document.getElementById("video-" + id);
       if (video) video.remove();
       if (peerConnections[id]) {
@@ -67,38 +71,34 @@ function createPeerConnection(id, isInitiator) {
   const pc = new RTCPeerConnection(config);
   peerConnections[id] = pc;
 
-  // 映像・音声を相手に送る
-  if (localStream) {
-    localStream.getTracks().forEach(track => {
-      pc.addTrack(track, localStream);
-    });
-  }
-
-  // 相手の映像・音声を受信
   pc.ontrack = event => {
+    console.log("📦 トラック受信:", event);
     if (!document.getElementById("video-" + id)) {
       addVideoStream(id, event.streams[0]);
     }
   };
 
-  // ICE candidate を送信
   pc.onicecandidate = e => {
     if (e.candidate) {
       socket.emit("signal", { to: id, data: { candidate: e.candidate } });
     }
   };
 
-  // 発信側は offer を作成
-  if (isInitiator) {
-    pc.createOffer().then(offer => {
-      return pc.setLocalDescription(offer);
-    }).then(() => {
-      socket.emit("signal", { to: id, data: pc.localDescription });
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      pc.addTrack(track, localStream);
     });
+  }
+
+  if (isInitiator) {
+    pc.createOffer()
+      .then(offer => pc.setLocalDescription(offer))
+      .then(() => {
+        socket.emit("signal", { to: id, data: pc.localDescription });
+      });
   }
 }
 
-// 映像を画面に表示
 function addVideoStream(id, stream) {
   const video = document.createElement("video");
   video.id = "video-" + id;
@@ -106,10 +106,13 @@ function addVideoStream(id, stream) {
   video.autoplay = true;
   video.playsInline = true;
   if (id === "自分") video.muted = true;
+  video.addEventListener("loadedmetadata", () => {
+    video.play().catch(err => console.warn("再生エラー:", err));
+  });
   videoGrid.appendChild(video);
 }
 
-// カメラ/マイク制御・退出機能
+// UIコントロール用
 function toggleCamera() {
   localStream.getVideoTracks().forEach(track => {
     track.enabled = !track.enabled;
