@@ -16,7 +16,7 @@ let room = [];
 io.on("connection", socket => {
   console.log("✅ 接続:", socket.id);
 
-  socket.on("join", () => {
+  socket.on("join-room", () => {
     if (room.includes(socket.id)) return;
 
     if (room.length >= 4) {
@@ -27,9 +27,12 @@ io.on("connection", socket => {
     room.push(socket.id);
     socket.join("main");
 
-    // 既存ユーザーリストを送信
-    socket.emit("joined", room.filter(id => id !== socket.id));
-    socket.to("main").emit("new_user", socket.id);
+    // 接続者に他ユーザーのIDを送信
+    const otherUsers = room.filter(id => id !== socket.id);
+    socket.emit("users", otherUsers);
+
+    // ほかのユーザーに新規参加を通知
+    socket.to("main").emit("user-joined", socket.id);
   });
 
   socket.on("signal", ({ to, data }) => {
@@ -40,7 +43,7 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log("❌ 切断:", socket.id);
     room = room.filter(id => id !== socket.id);
-    io.to("main").emit("user_left", socket.id);
+    io.to("main").emit("user-left", socket.id);
   });
 });
 
