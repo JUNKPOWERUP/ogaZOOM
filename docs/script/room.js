@@ -1,4 +1,6 @@
-const socket = io();
+// ✅ Render にデプロイした Socket.IO サーバーを指定
+const socket = io("https://boine.onrender.com/");
+
 const videoGrid = document.getElementById('video-grid');
 const peers = {};
 let localStream;
