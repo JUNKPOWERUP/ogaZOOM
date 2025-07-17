@@ -1,13 +1,22 @@
+const correctPW = "シコッター";
+
+// ローカルストレージ確認（以前ログイン済みなら即表示）
+if (localStorage.getItem("sikotter-auth") === "ok") {
+  showMainScreen();
+}
+
 document.getElementById("enter-button").addEventListener("click", () => {
   const pw = document.getElementById("password").value;
-  const correctPW = "シコッター";
 
   if (pw === correctPW) {
-    // ロック解除
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("main-screen").style.display = "block";
+    localStorage.setItem("sikotter-auth", "ok");
+    showMainScreen();
   } else {
-    // エラーメッセージ表示
     document.getElementById("error-msg").style.display = "block";
   }
 });
+
+function showMainScreen() {
+  document.getElementById("lock-screen").style.display = "none";
+  document.getElementById("main-screen").style.display = "block";
+}
