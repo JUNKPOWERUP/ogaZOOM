@@ -88,8 +88,15 @@ function addVideoStream(id, stream) {
   video.srcObject = stream;
   video.autoplay = true;
   video.playsInline = true;
+
+  // ✅ 自分の映像はミュート（音を出さない）
+  if (id === "自分") {
+    video.muted = true;
+  }
+
   videoGrid.appendChild(video);
 }
+
 
 // ボタン制御
 function toggleCamera() {
