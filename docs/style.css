@@ -48,6 +48,9 @@ button:hover {
 
 /* 通話ルーム */
 #video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
   width: 100%;
   max-width: 800px;
   aspect-ratio: 1 / 1;
@@ -69,6 +72,7 @@ video {
 /* モバイル対応 */
 @media (max-width: 600px) {
   #video-grid {
+    display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
     aspect-ratio: auto;
