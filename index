@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ogaZOOM</title>
+  <title>BoINE</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,7 +15,7 @@
   </div>
 
   <div id="main-screen" style="display: none;">
-    <h2>ogaＺＯＯＭ</h2>
+    <h2>BoINE</h2>
     <a href="room.html"><button>通話ルームに入る</button></a>
   </div>
 
