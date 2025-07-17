@@ -1,1 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BoINE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="lock-screen">
+    <h2>パスワードを入力してください</h2>
+    <input type="password" id="password" placeholder="パスワード" />
+    <button id="enter-button">入室する</button>
+    <p id="error-msg" style="color: red; display: none;">パスワードが間違っています</p>
+  </div>
+
+  <div id="main-screen" style="display: none;">
+    <h2>BoINE</h2>
+    <a href="room.html"><button>通話ルームに入る</button></a>
+  </div>
+
+  <script src="script/main.js"></script>
+</body>
+</html>
 
