@@ -1,13 +1,10 @@
-// ✅ Render にデプロイした Socket.IO サーバーを指定
 const socket = io("https://boine.onrender.com/");
-
 const videoGrid = document.getElementById('video-grid');
 const peers = {};
 let localStream;
 let userId = '';
 let hasMedia = false;
 
-// カメラ・マイクの確認と取得
 async function initMedia() {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -22,20 +19,20 @@ async function initMedia() {
     });
 
     hasMedia = true;
-    addVideoStream(localStream, 'あなた');
-    socket.emit('join-room');
+    addVideoStream(localStream, 'あなた', socket.id);
+    socket.emit('join');
   } catch (err) {
     console.error('❌ カメラ・マイク取得失敗:', err);
-    socket.emit('join-room'); // メディアなしでも部屋には入る
+    socket.emit('join'); // メディアなしでも入室
   }
 }
 
-// 自分のビデオを表示
-function addVideoStream(stream, label) {
+function addVideoStream(stream, label, id) {
   const video = document.createElement('video');
   video.playsInline = true;
   video.autoplay = true;
   video.srcObject = stream;
+  video.id = id;
 
   const wrapper = document.createElement('div');
   wrapper.appendChild(video);
@@ -49,7 +46,6 @@ function addVideoStream(stream, label) {
   };
 }
 
-// カメラ・マイク切替
 function toggleCamera() {
   if (localStream) {
     localStream.getVideoTracks().forEach(track => (track.enabled = !track.enabled));
@@ -65,19 +61,18 @@ function leaveRoom() {
   window.close();
 }
 
-// ソケットイベント
 socket.on('connect', () => {
   userId = socket.id;
   initMedia();
 });
 
-socket.on('users', users => {
+socket.on('joined', users => {
   users.forEach(remoteId => {
     connectToNewUser(remoteId);
   });
 });
 
-socket.on('user-joined', userId => {
+socket.on('new_user', userId => {
   console.log('🆕 新規ユーザー:', userId);
   connectToNewUser(userId);
 });
@@ -106,10 +101,12 @@ socket.on('signal', async ({ from, data }) => {
   }
 });
 
-socket.on('user-left', id => {
+socket.on('user_left', id => {
   if (peers[id]) {
     peers[id].close();
     delete peers[id];
+    const el = document.getElementById(id);
+    if (el) el.parentElement.remove();
   }
 });
 
@@ -137,11 +134,10 @@ function connectToNewUser(remoteId) {
   peer.ontrack = e => {
     const [stream] = e.streams;
     if (!document.getElementById(remoteId)) {
-      addVideoStream(stream, '相手');
+      addVideoStream(stream, '相手', remoteId);
     }
   };
 
-  // イニシエーター判定
   if (socket.id > remoteId) {
     peer.createOffer()
       .then(offer => peer.setLocalDescription(offer))
