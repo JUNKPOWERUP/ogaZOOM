@@ -1,1 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>シコッター通話ルーム</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>通話ルーム（最大4人）</h2>
+  <div id="video-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <!-- 各ユーザーのビデオ -->
+  </div>
 
+  <div style="margin-top: 20px;">
+    <button onclick="toggleCamera()">カメラON/OFF</button>
+    <button onclick="toggleMic()">マイクON/OFF</button>
+    <button onclick="leaveRoom()">通話終了</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="script/room.js"></script>
+</body>
+</html>
