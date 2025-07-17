@@ -1,4 +1,4 @@
-const correctPW = "シコッター";
+const correctPW = "0721";
 
 // ローカルストレージ確認（以前ログイン済みなら即表示）
 if (localStorage.getItem("sikotter-auth") === "ok") {
