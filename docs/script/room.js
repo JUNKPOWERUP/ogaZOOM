@@ -13,7 +13,6 @@ async function initMedia() {
 
     if (!hasVideo && !hasAudio) throw new Error('カメラ・マイクなし');
 
-    // 音声にエコーキャンセル・ノイズ抑制を入れて取得
     localStream = await navigator.mediaDevices.getUserMedia({
       video: hasVideo,
       audio: {
@@ -23,8 +22,6 @@ async function initMedia() {
     });
 
     hasMedia = true;
-
-    // 自分の映像を表示するvideoタグ（自分の声はミュート）
     addMyVideoStream(localStream, socket.id);
 
   } catch (err) {
@@ -34,36 +31,37 @@ async function initMedia() {
   }
 }
 
-// 自分用ビデオ要素を作る（ミュート必須！）
+// 自分の映像を表示（名前非表示・ミュート）
 function addMyVideoStream(stream, id) {
   const video = document.createElement('video');
   video.srcObject = stream;
-  video.muted = true;       // ← これで自分の声が聞こえない
+  video.muted = true;
   video.autoplay = true;
   video.playsInline = true;
+  video.controls = false; // 自分のコントロールは不要
   video.id = id;
 
   const wrapper = document.createElement('div');
   wrapper.appendChild(video);
-  wrapper.appendChild(document.createTextNode('あなた'));
   videoGrid.appendChild(wrapper);
 
   video.onloadedmetadata = () => video.play().catch(console.warn);
 }
 
-// 他ユーザーの映像追加
-function addVideoStream(stream, label, id) {
-  if(document.getElementById(id)) return; // 重複防止
+// 他ユーザーの映像追加（名前なし・音声出力）
+function addVideoStream(stream, id) {
+  if (document.getElementById(id)) return;
 
   const video = document.createElement('video');
   video.srcObject = stream;
   video.autoplay = true;
   video.playsInline = true;
+  video.muted = false;   // ← 音声出力する
+  video.controls = true; // ← ユーザーが音量調整できる
   video.id = id;
 
   const wrapper = document.createElement('div');
   wrapper.appendChild(video);
-  wrapper.appendChild(document.createTextNode(label));
   videoGrid.appendChild(wrapper);
 
   video.onloadedmetadata = () => video.play().catch(console.warn);
@@ -120,7 +118,7 @@ function connectToUser(remoteId) {
 
   peer.ontrack = e => {
     const [stream] = e.streams;
-    addVideoStream(stream, '相手', remoteId);
+    addVideoStream(stream, remoteId);
   };
 
   if (socket.id > remoteId) {
