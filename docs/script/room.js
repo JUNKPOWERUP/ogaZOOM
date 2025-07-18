@@ -78,9 +78,26 @@ function toggleMic() {
   }
 }
 function leaveRoom() {
+  // ソケット切断
   socket.disconnect();
-  window.close();
+
+  // PeerConnectionをすべて閉じる
+  Object.values(peers).forEach(p => p.close());
+
+  // 映像エリアをクリア
+  videoGrid.innerHTML = '';
+
+  // カメラ・マイク停止
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+  }
+
+  // 少し待ってからページ遷移（安全に処理を終えるため）
+  setTimeout(() => {
+    window.location.href = "https://junkpowerup.github.io/ogaZOOM/";
+  }, 1000);
 }
+
 
 socket.on('connect', () => {
   initMedia();
