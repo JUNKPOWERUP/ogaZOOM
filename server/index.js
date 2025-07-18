@@ -6,6 +6,11 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
+// ✅ Render + UptimeRobot 用 ping エンドポイント
+app.get("/", (req, res) => {
+  res.send("🟢 Server is running and alive!");
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
