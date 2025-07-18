@@ -21,6 +21,9 @@ async function initMedia() {
       }
     });
 
+    // 🔴 カメラをデフォルトでOFFにする
+    localStream.getVideoTracks().forEach(track => track.enabled = false);
+
     hasMedia = true;
     addMyVideoStream(localStream, socket.id);
 
@@ -30,6 +33,7 @@ async function initMedia() {
     socket.emit("join-room");
   }
 }
+
 
 // 自分の映像を表示（名前非表示・ミュート）
 function addMyVideoStream(stream, id) {
