@@ -1,4 +1,4 @@
-const socket = io("https://boine.onrender.com/"); // ← 自分のRender URLに変更
+const socket = io("https://boine.onrender.com/"); // ← RenderのURLに必ず置き換えてください
 
 const videoGrid = document.getElementById('video-grid');
 const peers = {};
@@ -13,13 +13,20 @@ async function initMedia() {
 
     if (!hasVideo && !hasAudio) throw new Error('カメラ・マイクなし');
 
+    // 音声にエコーキャンセル・ノイズ抑制を入れて取得
     localStream = await navigator.mediaDevices.getUserMedia({
       video: hasVideo,
-      audio: hasAudio
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+      }
     });
 
     hasMedia = true;
-    addVideoStream(localStream, 'あなた', socket.id);
+
+    // 自分の映像を表示するvideoタグ（自分の声はミュート）
+    addMyVideoStream(localStream, socket.id);
+
   } catch (err) {
     console.warn('🎥⚠️ メディア取得失敗:', err);
   } finally {
@@ -27,7 +34,27 @@ async function initMedia() {
   }
 }
 
+// 自分用ビデオ要素を作る（ミュート必須！）
+function addMyVideoStream(stream, id) {
+  const video = document.createElement('video');
+  video.srcObject = stream;
+  video.muted = true;       // ← これで自分の声が聞こえない
+  video.autoplay = true;
+  video.playsInline = true;
+  video.id = id;
+
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(video);
+  wrapper.appendChild(document.createTextNode('あなた'));
+  videoGrid.appendChild(wrapper);
+
+  video.onloadedmetadata = () => video.play().catch(console.warn);
+}
+
+// 他ユーザーの映像追加
 function addVideoStream(stream, label, id) {
+  if(document.getElementById(id)) return; // 重複防止
+
   const video = document.createElement('video');
   video.srcObject = stream;
   video.autoplay = true;
@@ -69,6 +96,7 @@ socket.on('room_full', () => {
 socket.on('users', users => {
   users.forEach(connectToUser);
 });
+
 socket.on('user-joined', connectToUser);
 
 function connectToUser(remoteId) {
@@ -92,9 +120,7 @@ function connectToUser(remoteId) {
 
   peer.ontrack = e => {
     const [stream] = e.streams;
-    if (!document.getElementById(remoteId)) {
-      addVideoStream(stream, '相手', remoteId);
-    }
+    addVideoStream(stream, '相手', remoteId);
   };
 
   if (socket.id > remoteId) {
