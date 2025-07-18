@@ -21,9 +21,6 @@ async function initMedia() {
       }
     });
 
-    // 🔴 カメラをデフォルトでOFFにする
-    localStream.getVideoTracks().forEach(track => track.enabled = false);
-
     hasMedia = true;
     addMyVideoStream(localStream, socket.id);
 
